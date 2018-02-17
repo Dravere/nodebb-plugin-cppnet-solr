@@ -1,8 +1,8 @@
 {
-	"id": "nodebb-plugin-solr",
+	"id": "nodebb-plugin-cppnet-solr",
 	"name": "Solr Search",
 	"description": "Full-text searching for NodeBB using Apache Solr",
-	"url": "https://github.com/julianlam/nodebb-plugin-solr",
+	"url": "https://github.com/Dravere/nodebb-plugin-solr",
 	"library": "./library.js",
 	"hooks": [
 		{ "hook": "static:app.load", "method": "init", "priority": 5 },

@@ -1,25 +1,21 @@
 {
-  "name": "nodebb-plugin-solr",
-  "version": "4.0.0",
+  "name": "nodebb-plugin-cppnet-solr",
+  "version": "0.1.0",
   "description": "Full-text searching for NodeBB using Apache Solr",
   "main": "library.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/julianlam/nodebb-plugin-solr"
+    "url": "https://github.com/Dravere/nodebb-plugin-solr"
   },
   "keywords": [
     "nodebb",
     "plugin",
-    "quickstart",
-    "shell"
+    "cppnet",
+    "solr"
   ],
-  "author": {
-    "name": "julianlam",
-    "email": "julian@nodebb.org"
-  },
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/julianlam/nodebb-plugin-solr/issues"
+    "url": "https://github.com/Dravere/nodebb-plugin-solr/issues"
   },
   "readmeFilename": "README.md",
   "dependencies": {
@@ -27,6 +23,6 @@
     "lru-cache": "^2.5.0"
   },
   "nbbpm": {
-    "compatibility": "^1.5.0"
+    "compatibility": "^1.7.0"
   }
 }
