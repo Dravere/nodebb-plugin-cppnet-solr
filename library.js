@@ -32,7 +32,8 @@ var db = module.parent.require('./database'),
 		indexStatus: {
 			running: false,
 			current: 0,
-			total: 0
+			total: 0,
+			message: "Initializing"
 		}
 	};
 
@@ -531,6 +532,7 @@ Solr.rebuildIndex = function(req, res) {
 
 	Solr.indexStatus.running = true;
 	Solr.indexStatus.current = 0;
+	Solr.indexStatus.message = "Initializing";
 
 	async.series({
 		total: function(next) {
@@ -547,6 +549,7 @@ Solr.rebuildIndex = function(req, res) {
 			Solr.add(results.topics, function(err) {
 				if (!err) {
 					winston.info('[plugins/solr] Re-indexing completed.');
+					Solr.indexStatus.message = "Indexing finished";
 					Solr.indexStatus.running = false;
 				} else {
 					winston.error('[plugins/solr] Unable to add final data to solr. Error: ' + err.message);
@@ -559,11 +562,14 @@ Solr.rebuildIndex = function(req, res) {
 };
 
 Solr.rebuildTopicIndex = function(callback) {
+	Solr.indexStatus.message = "Collecting topic metadata";
+
 	async.waterfall([
 		async.apply(db.getSortedSetRange, 'topics:tid', 0, -1),
 		function(tids, next) {
 			var index = 0;
 			var topicsFields = [];
+			Solr.indexStatus.message = "Collecting topic metadata 0 / " + tids.length;
 			async.whilst(function () {
 				return index < tids.length;
 			},
@@ -572,6 +578,7 @@ Solr.rebuildTopicIndex = function(callback) {
 				topics.getTopicsFields(slicedTids, ['tid', 'mainPid', 'title', 'cid', 'uid', 'deleted'], function (err, results) {
 					if(!err) {
 						index += results.length;
+						Solr.indexStatus.message = "Collecting topic metadata " + index + " / " + tids.length;
 						topicsFields = topicsFields.concat(results);
 					}
 
@@ -587,6 +594,8 @@ Solr.rebuildTopicIndex = function(callback) {
 			winston.error('[plugins/solr/reindexTopic] Could not retrieve topic listing for indexing. Error: ' + err.message);
 			return callback(err);
 		}
+
+		Solr.indexStatus.message = "Indexed topics 0 / " + topics.length;
 
 		var indexedTopicCount = 0;
 		async.whilst(function () {
@@ -613,6 +622,7 @@ Solr.rebuildTopicIndex = function(callback) {
 				});
 
 				indexedTopicCount += indexingTopics.length;
+				Solr.indexStatus.message = "Indexed topics " + indexedTopicCount + " / " + topics.length;
 
 				Solr.add(payload, function (err) {
 					if(!err) {
@@ -640,13 +650,22 @@ Solr.getIndexProgress = function(req, res) {
 	if (Solr.indexStatus.running) {
 		if(Solr.indexStatus.total > 0) {
 			var progress = (Solr.indexStatus.current / Solr.indexStatus.total).toFixed(4) * 100;
-			res.status(200).send(progress.toString());
+			res.status(200).send(JSON.stringify({
+				percentage: progress,
+				message: Solr.indexStatus.message
+			}));
 		}
 		else {
-			res.status(200).send("0");
+			res.status(200).send(JSON.stringify({
+				percentage: 0,
+				message: Solr.indexStatus.message
+			}));
 		}
 	} else {
-		res.status(200).send('-1');
+		res.status(200).send(JSON.stringify({
+			percentage: -1,
+			message: 'Done'
+		}));
 	}
 };
 
