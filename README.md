@@ -24,3 +24,7 @@ The list of differences from the nodebb-plugin-solr version 5.0.0:
 
 * Rebuilding dialog is displayed when the user navigates back to the plugin page and the rebuilding is still going on
 * Removed unnecessary retrieval of all user entries in the database (no index is built from it anyway)
+* Batching of topic metadata collection (can fix timeout issues with the MongoDB)
+* Updated LRU-cache and solr-client dependencies to latest versions
+* Removed an error in case of an error (it tried to add to Solr after an error)
+* Improved progress reporting (added message what it is doing currently)
